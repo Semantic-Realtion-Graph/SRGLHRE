@@ -4,9 +4,11 @@ import time
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-
+from torch.autograd import Variable
+from torch.nn import init
+from torch.nn.parameter import Parameter
 from transformers import BertModel, BertPreTrainedModel, RobertaModel, AlbertModel
-
+from torch.nn.modules.module import Module
 
 
 PRETRAINED_MODEL_MAP = {
@@ -40,7 +42,7 @@ class RBERT(BertPreTrainedModel):
         self.e1_fc_layer = FCLayer(bert_config.hidden_size*2, bert_config.hidden_size, args.dropout_rate)
         self.e2_fc_layer = FCLayer(bert_config.hidden_size*2, bert_config.hidden_size, args.dropout_rate)
         self.label_classifier = FCLayer(bert_config.hidden_size * 3, bert_config.num_labels, args.dropout_rate, use_activation=False)
-        
+
     @staticmethod
     def entity_average(hidden_output, e_mask):
         """
@@ -60,6 +62,12 @@ class RBERT(BertPreTrainedModel):
     @staticmethod
     def update(e1_h,e2_h,cls_h,e1_id,e2_id,graph,edge_feature,entity_feature):
 
+        #e1_id = int(e1_id)
+        #e2_id = int(e2_id)
+        
+        #if e1_id>e2_id:
+            #e2_id,e1_id = e1_id,e2_id
+        # update graph,update entity_feature
         if graph.__contains__(str(e1_id)):
             if int(e2_id) not in graph[str(e1_id)]:
                 graph[str(e1_id)].append(int(e2_id))
@@ -86,12 +94,12 @@ class RBERT(BertPreTrainedModel):
             #edge_feature[edge]=((np.array(edge_feature[edge]) + cls_h.cpu().clone().detach().numpy())/2).tolist()
         #else:
         edge_feature[edge] = cls_h.cpu().clone().detach().numpy().tolist()
-        
+        #print(e1_id,e2_id,edge)
        
 
 
     def forward(self, input_ids, attention_mask, token_type_ids, labels, e1_mask, e2_mask,
-                e1_ids,e2_ids,false_labels,graph,edge_feature,entity_feature):
+                e1_ids,e2_ids,graph,edge_feature,entity_feature):
         outputs = self.bert(input_ids, attention_mask=attention_mask,
                             token_type_ids=token_type_ids)  # sequence_output, pooled_output, (hidden_states), (attentions)
         sequence_output = outputs[0]
@@ -160,6 +168,7 @@ class RBERT(BertPreTrainedModel):
         logits = self.label_classifier(concat_h)
 
         outputs = (logits,) + outputs[2:]  # add hidden states and attention if they are here
+
         # Softmax
         if labels is not None:
             if self.num_labels == 1:
@@ -167,25 +176,11 @@ class RBERT(BertPreTrainedModel):
                 loss = loss_fct(logits.view(-1), labels.view(-1))
             else:
                 loss_fct = nn.CrossEntropyLoss()
-                #loss = loss_fct(logits.view(-1, 11), torch.fmod(labels.view(-1),8))
                 loss = loss_fct(logits.view(-1, self.num_labels), labels.view(-1))
 
-            outputs = (loss,) + outputs      
+            outputs = (loss,) + outputs
+
         return outputs  # (loss), logits, (hidden_states), (attentions)
-def get_one_hot(label, N):
-    size = list(label.size())
-    label = label.view(-1)
-    
-    # reshape 为向量
-    ones = torch.sparse.torch.eye(N).cuda()
-    
-    ones = ones.index_select(0, label)   # 用上面的办法转为换one hot
-    #print(ones)
-    
-
-    size.append(N)  # 把类别输目添到size的尾后，准备reshape回原来的尺寸
-    return ones.view(*size)
-
 def attention(query, key, value):
     d_k = query.size(-1)
     scores = torch.matmul(query, key.transpose(-2, -1)) / math.sqrt(d_k)

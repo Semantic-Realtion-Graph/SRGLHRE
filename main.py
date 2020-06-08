@@ -1,47 +1,26 @@
 import argparse
 import os
-
 from trainer import Trainer
-from utils import init_logger, load_tokenizer, MODEL_CLASSES
-from data_loader import load_and_cache_examples,convert_features_to_tensorDataset
-
+from utils import init_logger, load_tokenizer, MODEL_CLASSES, MODEL_PATH_MAP
+from data_loader import load_and_cache_examples
+import time
 
 
 def main(args):
     init_logger()
     tokenizer = load_tokenizer(args)
-    # memory=[[] for i in range(10)]
-    memory=[]
-    test_list = []
-    trainer = Trainer(args)
-    '''
-    mode:
-        train: training model
-        dev: the test of single task in lifelong
-        eval: the test of seen task in lifelong
-        test: the test of all task in lifelong
-    '''
-    for i in range(10):
-        train_dataset= load_and_cache_examples(args,test_list,i,tokenizer, mode="train")
-        dev_dataset = load_and_cache_examples(args,  test_list, i, tokenizer, mode="dev")
-        test_dataset= load_and_cache_examples(args, test_list,i,tokenizer, mode="test")
-        dev_dataset = convert_features_to_tensorDataset(dev_dataset)
-        test_dataset = convert_features_to_tensorDataset(test_dataset)
-        
-        if args.do_train:
-            trainer.train(train_dataset,i,memory)
-       
-        if args.do_eval:
-            eval_dataset = load_and_cache_examples(args, test_list, i, tokenizer, mode="eval")
-            eval_dataset = convert_features_to_tensorDataset(eval_dataset)
-            trainer.evaluate('eval',eval_dataset,i)
-            #trainer.load_model()
-            trainer.evaluate('dev',dev_dataset,i)
-            trainer.evaluate('test',test_dataset,i)
-    trainer.save_model()
-            
-       
-        
+
+    train_dataset = load_and_cache_examples(args, tokenizer, mode="train")
+    test_dataset = load_and_cache_examples(args, tokenizer, mode="test")
+
+    trainer = Trainer(args, train_dataset=train_dataset, test_dataset=test_dataset)
+
+    if args.do_train:
+        trainer.train()
+
+    if args.do_eval:
+        trainer.load_model()
+        trainer.evaluate('test')
 
 
 if __name__ == '__main__':
@@ -86,16 +65,11 @@ if __name__ == '__main__':
     parser.add_argument("--entity2id_file", default="entity2id.json", type=str, help="entity2id_file file")
     parser.add_argument("--edge_feature_file", default="edge_feature.json", type=str, help="edge_feature file")
     parser.add_argument("--entity_feature_file", default="entity_feature.json", type=str, help="entity_feature file")
-
-    parser.add_argument("--per_memory_size", default=50, type=int,help="set per memory size.")
-    parser.add_argument("--few_short", action='store_true', help="if few short ,select some examples form dataset")
-    parser.add_argument("--num_examples_per_task", default=100, type=int, help="set number examples of per task,this will be used if few short")
-
-
     args = parser.parse_args()
     args.graph_file=os.path.join(args.data_dir,'{}_{}_{}'.format(args.task,list(filter(None, args.model_name_or_path.split("/"))).pop(),args.graph_file))
     args.entity2id_file=os.path.join(args.data_dir,'{}_{}_{}'.format(args.task,list(filter(None, args.model_name_or_path.split("/"))).pop(),args.entity2id_file))
     args.edge_feature_file=os.path.join(args.data_dir,'{}_{}_{}'.format(args.task,list(filter(None, args.model_name_or_path.split("/"))).pop(),args.edge_feature_file))
     args.entity_feature_file=os.path.join(args.data_dir,'{}_{}_{}'.format(args.task,list(filter(None, args.model_name_or_path.split("/"))).pop(),args.entity_feature_file))
-
+    
+    # args.model_name_or_path = MODEL_PATH_MAP[args.model_type]
     main(args)
