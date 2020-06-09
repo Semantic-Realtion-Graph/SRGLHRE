@@ -19,7 +19,7 @@ class Trainer(object):
     def __init__(self, args, train_dataset=None, dev_dataset=None, test_dataset=None):
         '''
         initial trainer
-        :param args,train_dataset,dev_dataset, test_dataset:
+        :param args,train_dataset,dev_dataset, test_dataset
         '''
         self.args = args
         self.train_dataset = train_dataset
@@ -104,12 +104,16 @@ class Trainer(object):
                           # 'entity2id': self.entity2id
                           }
 
+                # get output from model
                 outputs = self.model(**inputs)
+                # get loss
                 loss, logits = outputs[:2]
                 if self.args.gradient_accumulation_steps > 1:
                     loss = loss / self.args.gradient_accumulation_steps
+                # backward
                 loss.backward()
                 tr_loss += loss.item()
+                # get prediction and labels
                 if preds is None:
                     preds = logits.detach().cpu().numpy()
                     out_label_ids = inputs['labels'].detach().cpu().numpy()
@@ -118,7 +122,11 @@ class Trainer(object):
                     out_label_ids = np.append(
                         out_label_ids, inputs['labels'].detach().cpu().numpy(), axis=0)
                 preds = np.argmax(preds, axis=1)
+
+                #compute acc
                 acc = (preds == out_label_ids).mean()
+
+                # print logs information
                 post_fix = {
                     "epoch":epoch,
                     "iter": global_step,

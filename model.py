@@ -76,7 +76,7 @@ class RBERT(BertPreTrainedModel):
         '''
 
 
-        # update graph,update entity_feature
+        # update graph and entity_feature
         if graph.__contains__(str(e1_id)):
             if int(e2_id) not in graph[str(e1_id)]:
                 graph[str(e1_id)].append(int(e2_id))
@@ -93,15 +93,12 @@ class RBERT(BertPreTrainedModel):
         entity_feature[str(e2_id)] = e2_h.cpu().clone().detach().numpy().tolist()
 
         # update edge_feature
-        #print("graph",graph)
-        #print("entity_feature",entity_feature)
+
         e1_id_,e2_id_=e1_id,e2_id
         if e1_id>e2_id:
             e2_id_,e1_id_ = e1_id,e2_id
         edge=str(e1_id_)+"-"+str(e2_id_)
-        #if edge in edge_feature:
-            #edge_feature[edge]=((np.array(edge_feature[edge]) + cls_h.cpu().clone().detach().numpy())/2).tolist()
-        #else:
+
         edge_feature[edge] = cls_h.cpu().clone().detach().numpy().tolist()
         #print(e1_id,e2_id,edge)
        
