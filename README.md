@@ -52,4 +52,4 @@ For Sem-Eval 2010 task 8 dataset, we provide it at ./data/semeval.
 For TACRED dataset, we are unable to provide the data due to copyright. You can get the data from [TAC Relation Extraction Dataset](https://catalog.ldc.upenn.edu/LDC2018T24). And we provide dataset preprocess code at ./data/tacred
 
 ## Lifelong code
-In the "master" branch, we provide the code without lifelong learning. While the code for lifelong relation extraction is at "lifelong" branch.
+In the "master" branch, we provide the code without lifelong learning. While the code for lifelong relation extraction is in the ["lifelong" branch](https://github.com/Semantic-Realtion-Graph/SRGLHRE/tree/lifelong).
