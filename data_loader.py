@@ -518,9 +518,9 @@ def load_and_cache_examples(args, test_list,task_index,tokenizer, mode):
     if mode == "eval":
          test_list+=features
          features = test_list
-    # if few_short, select samples from train features randomly
+    # if few_shot, select samples from train features randomly
     elif mode == "train" :
-        if args.few_short:
+        if args.few_shot:
             features=random.sample(features,args.num_examples_per_task)
 
     # Convert to Tensors and build dataset

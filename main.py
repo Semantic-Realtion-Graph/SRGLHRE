@@ -91,7 +91,7 @@ if __name__ == '__main__':
     parser.add_argument("--entity_feature_file", default="entity_feature.json", type=str, help="entity_feature file")
 
     parser.add_argument("--per_memory_size", default=50, type=int,help="set per memory size.")
-    parser.add_argument("--few_short", action='store_true', help="if few short ,select some examples form dataset")
+    parser.add_argument("--few_shot", action='store_true', help="if few shot ,select some examples form dataset")
     parser.add_argument("--num_examples_per_task", default=100, type=int, help="set number examples of per task,this will be used if few short")
 
 
