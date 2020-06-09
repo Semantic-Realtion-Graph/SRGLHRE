@@ -32,18 +32,7 @@ python -u main.py \
     --model_name_or_path MODEL_PATH \
     --entity_start
 ```
-### FewRel
-```bash
-python -u main.py \
-    --task fewrel \
-    --model_type albert \
-    --data_dir DATA_PATH \
-    --do_train \
-    --do_eval \
-    --model_name_or_pathMODEL_PATH \
-    --entity_start \
-    --per_memory_size 7
-```
+
 ## Parameters
 
 
@@ -56,6 +45,5 @@ python -u main.py \
 |--do_eval                |evaluate the model|
 |--model_name_or_path     |the path of the model to load|
 |--entity_start           |use the hidden state of start markers <e1s> and <e2s> as the representation|
-|--few_shot               |if few shot, select some examples form dataset for limited supervision learning|
-|--num_examples_per_task  |the number of examples selected in each task for limited supervision learning experiment|
+
   
