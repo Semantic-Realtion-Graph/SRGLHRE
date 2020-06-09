@@ -38,5 +38,5 @@ python -u main.py \
     
     
 ## Data
-We provide the lifelong FewRel benchamark which has been split into ten tasks at ./data/fewrel
+We provide the lifelong FewRel benchamark which has been splited into ten tasks at ./data/fewrel
 
