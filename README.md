@@ -46,4 +46,5 @@ python -u main.py \
 |--model_name_or_path     |the path of the model to load|
 |--entity_start           |use the hidden state of start markers <e1s> and <e2s> as the representation|
 
-  
+## data
+For Sem-Eval 2010 task 8 dataset, we provide it at ./data/SemEval
