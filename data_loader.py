@@ -345,19 +345,14 @@ def convert_examples_to_features(examples, args, tokenizer,
                                  add_sep_token=False,
                                  mask_padding_with_zero=True):
     '''
-    convert examples to features
-    :param examples:
-    :param args:
-    :param tokenizer:
-    :param cls_token:
-    :param cls_token_segment_id:
-    :param sep_token:
-    :param pad_token:
-    :param pad_token_segment_id:
-    :param sequence_a_segment_id:
-    :param add_sep_token:
-    :param mask_padding_with_zero:
-    :return:
+    :param examples: the examples of dataset
+    :param args: parameters
+    :param tokenizer:tokenizer
+    :param cls_token: '[CLS]' marker
+    :param cls_token_segment_id: The default is 0 if there is a sentence only
+    :param sep_token:'[SEP]' marker
+    :param pad_token: padding token,default is 0
+    :return: features(InputFeatures)
     '''
     features = []
     max_seq_len = args.max_seq_len
@@ -453,18 +448,6 @@ def convert_examples_to_features(examples, args, tokenizer,
 
         label_id = int(example.label)
 
-        '''if ex_index < 5:
-            logger.info("*** Example ***")
-            logger.info("guid: %s" % example.guid)
-            logger.info("tokens: %s" % " ".join([str(x) for x in tokens]))
-            logger.info("input_ids: %s" % " ".join([str(x) for x in input_ids]))
-            logger.info("attention_mask: %s" % " ".join([str(x) for x in attention_mask]))
-            logger.info("token_type_ids: %s" % " ".join([str(x) for x in token_type_ids]))
-            logger.info("label: %s (id = %d)" % (example.label, label_id))
-            logger.info("e1_mask: %s" % " ".join([str(x) for x in e1_mask]))
-            logger.info("e2_mask: %s" % " ".join([str(x) for x in e2_mask]))
-            logger.info("e1_id: %d" % e1_id)
-            logger.info("e2_id: %d" % e2_id)'''
 
         features.append(
             InputFeatures(input_ids=input_ids,
@@ -531,9 +514,11 @@ def load_and_cache_examples(args, test_list,task_index,tokenizer, mode):
 
         torch.save(features, cached_features_file)
 
+    # add the seen eval data to test_list
     if mode == "eval":
          test_list+=features
          features = test_list
+    # if few_short, select samples from train features randomly
     elif mode == "train" :
         if args.few_short:
             features=random.sample(features,args.num_examples_per_task)

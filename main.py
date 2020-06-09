@@ -8,6 +8,9 @@ from data_loader import load_and_cache_examples,convert_features_to_tensorDatase
 
 
 def main(args):
+    '''
+       the main process of SRGLHRE
+    '''
     init_logger()
     tokenizer = load_tokenizer(args)
     # memory=[[] for i in range(10)]

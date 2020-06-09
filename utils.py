@@ -29,6 +29,7 @@ ADDITIONAL_SPECIAL_TOKENS = ["<e1>", "</e1>", "<e2>", "</e2>"]
 
 
 def get_label(args):
+    # get labels of dataset
     label_list = []
     for i in range(80):
         label_list.append(i)
@@ -36,6 +37,7 @@ def get_label(args):
 
 
 def load_tokenizer(args):
+    # load tokenizer from ALBERT.tokenizer
     tokenizer = MODEL_CLASSES[args.model_type][2].from_pretrained(args.model_name_or_path)
     tokenizer.add_special_tokens({"additional_special_tokens": ADDITIONAL_SPECIAL_TOKENS})
     return tokenizer
@@ -68,15 +70,27 @@ def set_seed(args):
 
 
 def compute_metrics(task, preds, labels):
+    '''
+       compute acc and f1 from acc_and_f1()
+       :param task: task of dataset
+       :param preds: prediction
+       :param labels: label
+       '''
     assert len(preds) == len(labels)
     return acc_and_f1(task, preds, labels)
 
 
 def simple_accuracy(preds, labels):
+    # acc
     return (preds == labels).mean()
 
 
 def acc_and_f1( preds, labels):
+    '''
+    the process of computing acc and f1
+    :param task,preds,labels:
+    :return: acc and f1
+    '''
     average_acc, whole_acc=score(labels,preds)
     return {
         "average_acc": average_acc,
@@ -86,10 +100,12 @@ def acc_and_f1( preds, labels):
 
 def score(key, prediction):
     '''
-
-    :param key: labels
-    :param prediction: prediction
-    :return:
+    Detailed steps of computing f1
+    :param key: true labels
+    :param prediction: predict labels
+    :param no_relation: the id of "no_relation" or "other"
+    :param class_num: number of classes
+    :return: pre ,recall and f1
     '''
     correct_by_relation = Counter()
     guessed_by_relation = Counter()
@@ -144,6 +160,11 @@ def split_data(dataset,batch_size):
 
 
 def load_entity_feature(entity_feature_file):
+    '''
+    load entity features from entity_feature_file
+    :param entity_feature_file: path of entity feature file
+    :return: entity features
+    '''
     print("************* Loading entity_features ***************** ")
     entity_features={}
     try:
@@ -160,6 +181,11 @@ def load_entity_feature(entity_feature_file):
 
 
 def write_entity_feature(entity_features, entity_feature_file):
+    '''
+        write entity features from entity_feature_file
+        :param entity_feature_file: path of entity feature file
+        :param: entity features: entity features
+        '''
     print("************* Writing entity_features ***************** ")
     with open(entity_feature_file, 'w') as file:
         json.dump(entity_features, file)
@@ -167,6 +193,11 @@ def write_entity_feature(entity_features, entity_feature_file):
 
 
 def load_edge_feature(edge_feature_file):
+    '''
+    load edge features from edge_feature_file
+    :param edge_feature_file: path of edge feature file
+    :return: edge features
+    '''
     print("************* Loading edge_features ***************** ")
     edge_feature={}
     try:
@@ -189,6 +220,11 @@ def write_edge_feature(edge_features, edge_feature_file):
 
 
 def load_graph(graph_file):
+    '''
+    load graph  from graph_file
+    :param graph_file: path of graph file
+    :return: graph (adjacency list for vertexs)
+    '''
     print("************* Loading graph ***************** ")
     graph={}
     try:
@@ -204,6 +240,10 @@ def load_graph(graph_file):
 
 
 def write_graph(graph, graph_file):
+    '''
+    write graph to graph_file
+    :param graph,graph_file
+    '''
     print("************* Writing graph ***************** ")
     with open(graph_file, 'w') as file:
         json.dump(graph, file)
@@ -211,6 +251,11 @@ def write_graph(graph, graph_file):
 
 
 def load_entity2id(entity2id_file):
+    '''
+    load the map of entity to id
+    :param entity2id_file: entity to id file path
+    :return:
+    '''
     print("************* Loading entity2id ***************** ")
     entity2id={}
     try:
@@ -232,21 +277,11 @@ def write_entity2id(entity2id, dicts_file):
     file.close()
 
 
-def update_graph(graph, e1_id, e2_id):
-    if e1_id in graph.keys():
-        if int(e2_id) not in graph[e1_id]:
-            graph[e1_id].append(int(e2_id))
-    else:
-        graph[e1_id] = [int(e2_id)]
-    if e2_id in graph.keys():
-        if int(e1_id) not in graph[e2_id]:
-            graph[e2_id].append(int(e1_id))
-    else:
-        graph[e2_id] = [int(e1_id)]
-    return graph
 
 def convert_inputs2InputFeatures(inputs, i):
-    
+    '''
+    convert input(tensor) to InputFeatures
+    '''
     import data_loader
     return data_loader.InputFeatures(input_ids=inputs["input_ids"][i].cpu().clone().detach().numpy().tolist(),
                           attention_mask=inputs["attention_mask"][i].cpu().clone().detach().numpy().tolist(),
@@ -260,18 +295,15 @@ def convert_inputs2InputFeatures(inputs, i):
 
 #memory_list [[{概率：数据}],[{概率：数据}]...]
 def save_memory(memory,memory_list):
+    '''
+    save memory form memory list
+    :param memory: memory of seen tasks
+    :param memory_list: memory of current task
+    '''
     import data_loader
     for dicts in memory_list:
         for i in list(dicts.values()):
             memory.append(i)
     #memory.extend(dicts.values() for dicts in memory_list)
 
-if __name__ == '__main__':
-    write_features = {1: torch.Tensor([1,2,3,4,5,6]).numpy().astype(np.int).tolist(),
-                      2: torch.Tensor([2,3,4,5,7,6]).numpy().astype(np.int).tolist()
-                      }
-    write_graph(write_features, "data/graph.json")
-    graph = load_graph("data/graph.json")
-    graph = update_graph(graph,"1","6")
-    print(graph["1"])
-    print(graph)
+

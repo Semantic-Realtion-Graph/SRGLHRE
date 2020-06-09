@@ -21,6 +21,10 @@ logger = logging.getLogger(__name__)
 
 class Trainer(object):
     def __init__(self, args):
+        '''
+        initial trainer
+        :param args,train_dataset,dev_dataset, test_dataset:
+        '''
         self.args = args
         self.label_lst = get_label(args)
         self.num_labels = len(self.label_lst)
@@ -38,6 +42,9 @@ class Trainer(object):
         self.model.to(self.device)
 
     def train(self,train_dataset,task_index,memory):
+        '''
+        train process
+        '''
         # train_sampler = RandomSampler(train_dataset)
         # train_dataloader = DataLoader(train_dataset, sampler=train_sampler, batch_size=self.args.batch_size)
         random.shuffle(train_dataset)
@@ -87,6 +94,8 @@ class Trainer(object):
             epoch_iterator = tqdm(train_dataset,desc="Iteration")
             for step, batch_train in enumerate(epoch_iterator):
                 data=copy.copy(batch_train)
+
+                # for every batch: train data + memory
                 if memory:
                     if(len(memory)<train_batch_size):
                         data.extend(memory)
@@ -148,6 +157,8 @@ class Trainer(object):
 
 
                     acc = (preds_ == out_label_ids).mean()
+
+                    # print log information
                     post_fix = {
                         "task":task_index,
                         "epoch":epoch,
@@ -174,7 +185,10 @@ class Trainer(object):
         return global_step, tr_loss / global_step
 
     def evaluate(self, mode,dataset,task_index):
-       
+        '''
+        eval process
+        :param mode: "dev" ,"eval" or "test"
+        '''
 
         eval_sampler = SequentialSampler(dataset)
         eval_dataloader = DataLoader(dataset, sampler=eval_sampler, batch_size=self.args.batch_size)
@@ -230,7 +244,7 @@ class Trainer(object):
         result = compute_metrics(self.args.task, preds, out_label_ids)
         results.update(result)
 
-
+        # write logs to output_eval_file
         output_eval_file = os.path.join("eval", "eval_results.txt")
         with open(output_eval_file, "a") as writer:
             logger.info("***** The %s result of task %d *****"%(mode,task_index))
@@ -261,6 +275,7 @@ class Trainer(object):
         logger.info("Saving model checkpoint to %s", output_dir)
 
     def load_model(self):
+        """load model from model path"""
         # Check whether model exists
         if not os.path.exists(self.args.model_dir):
             raise Exception("Model doesn't exists! Train first!")
