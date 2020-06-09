@@ -47,6 +47,6 @@ python -u main.py \
 |--entity_start           |use the hidden state of start markers <e1s> and <e2s> as the representation|
 
 ## data
-For Sem-Eval 2010 task 8 dataset, we provide it at ./data/SemEval.
+For Sem-Eval 2010 task 8 dataset, we provide it at ./data/semeval.
 
 For TACRED dataset, we are unable to provide the data due to copyright. You can get the data from [TAC Relation Extraction Dataset](https://catalog.ldc.upenn.edu/LDC2018T24). And we provide dataset preprocess code at ./data/tacred
