@@ -15,10 +15,10 @@
 python -u main.py \
     --task semeval \
     --model_type albert \
-    --data_dir /home/liyanni/1307/ywc/relation_extraction/R-BERT/data \
+    --data_dir DATA_PATH \
     --do_train \
     --do_eval \
-    --model_name_or_path /home/liyanni/1307/jiao/bert_model/albert-xxlarge-v1 \
+    --model_name_or_path MODEL_PATH \
     --model_dir ./model \
     --batch_size 16 \
     --max_seq_len 128 \
@@ -32,10 +32,10 @@ python -u main.py \
 python -u main.py \
     --task tacred \
     --model_type albert \
-    --data_dir /home/liyanni/1307/dataset/tacred \
+    --data_dir DATA_PATH \
     --do_train \
     --do_eval \
-    --model_name_or_path /home/liyanni/1307/jiao/bert_model/albert-xxlarge-v1 \
+    --model_name_or_path MODEL_PATH \
     --model_dir ./model \
     --batch_size 48 \
     --max_seq_len 128 \
@@ -49,10 +49,10 @@ python -u main.py \
 python -u main.py \
     --task fewrel \
     --model_type albert \
-    --data_dir /home/liyanni/1307/jiao/few/split_data \
+    --data_dir DATA_PATH \
     --do_train \
     --do_eval \
-    --model_name_or_path /home/liyanni/1307/jiao/bert_model/albert-base-v1 \
+    --model_name_or_path MODEL_PATH \
     --model_dir ./model \
     --batch_size 16 \
     --max_seq_len 128 \
