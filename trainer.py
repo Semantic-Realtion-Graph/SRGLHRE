@@ -17,6 +17,10 @@ logger = logging.getLogger(__name__)
 
 class Trainer(object):
     def __init__(self, args, train_dataset=None, dev_dataset=None, test_dataset=None):
+        '''
+        initial trainer
+        :param args,train_dataset,dev_dataset, test_dataset:
+        '''
         self.args = args
         self.train_dataset = train_dataset
         self.dev_dataset = dev_dataset
@@ -38,6 +42,10 @@ class Trainer(object):
         self.model.to(self.device)
 
     def train(self):
+        '''
+        train process
+
+        '''
         train_sampler = RandomSampler(self.train_dataset)
         train_dataloader = DataLoader(self.train_dataset, sampler=train_sampler, batch_size=self.args.batch_size)
 
@@ -143,6 +151,11 @@ class Trainer(object):
         return global_step, tr_loss / global_step
 
     def evaluate(self, mode):
+        '''
+        eval process
+        :param mode: "dev" or "test"
+        :return:
+        '''
         # We use test dataset because semeval doesn't have dev dataset
         if mode == 'test':
             dataset = self.test_dataset
@@ -233,6 +246,7 @@ class Trainer(object):
         logger.info("Saving model checkpoint to %s", output_dir)
 
     def load_model(self):
+        """load model from model path"""
         # Check whether model exists
         if not os.path.exists(self.args.model_dir):
             raise Exception("Model doesn't exists! Train first!")

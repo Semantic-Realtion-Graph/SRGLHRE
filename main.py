@@ -7,6 +7,9 @@ import time
 
 
 def main(args):
+    '''
+    the main process of SRGLHRE
+    '''
     init_logger()
     tokenizer = load_tokenizer(args)
 

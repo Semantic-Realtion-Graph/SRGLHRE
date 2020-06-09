@@ -62,11 +62,20 @@ class RBERT(BertPreTrainedModel):
     @staticmethod
     def update(e1_h,e2_h,cls_h,e1_id,e2_id,graph,edge_feature,entity_feature):
 
-        #e1_id = int(e1_id)
-        #e2_id = int(e2_id)
-        
-        #if e1_id>e2_id:
-            #e2_id,e1_id = e1_id,e2_id
+        '''
+        update the SRG
+        :param e1_h: hidden state of entity(vertex) 1
+        :param e2_h: hidden state of entity(vertex) 2
+        :param cls_h: hidden state of "[CLS]" (sentence)
+        :param e1_id: the id of entity 1
+        :param e2_id:the id of entity 2
+        :param graph: SRG
+        :param edge_feature: features of edges
+        :param entity_feature:features of vertexs
+        :return:
+        '''
+
+
         # update graph,update entity_feature
         if graph.__contains__(str(e1_id)):
             if int(e2_id) not in graph[str(e1_id)]:
@@ -100,6 +109,14 @@ class RBERT(BertPreTrainedModel):
 
     def forward(self, input_ids, attention_mask, token_type_ids, labels, e1_mask, e2_mask,
                 e1_ids,e2_ids,graph,edge_feature,entity_feature):
+        """
+        forward process of SRGLHRE
+        process: ALBERT -> SRG -> classification
+        :param input_ids,attention_mask,token_type_ids,labels,e1_mask,e2_mask,e1_ids,e2_ids,graph,edge_feature,entity_feature
+        :return: logits, (hidden_states)
+        """
+
+        # get output from ALBERT(hidden states of tokens and CLS)
         outputs = self.bert(input_ids, attention_mask=attention_mask,
                             token_type_ids=token_type_ids)  # sequence_output, pooled_output, (hidden_states), (attentions)
         sequence_output = outputs[0]
@@ -112,11 +129,11 @@ class RBERT(BertPreTrainedModel):
         batch_e1_h=torch.Tensor().cuda()
         batch_e2_h = torch.Tensor().cuda()
 
+        # aggregate neighbor information from SRG
         for i in range(length):
             e1_id = int(e1_ids[i])
             e2_id = int(e2_ids[i])
-            #if e1_id>e2_id:
-                #e2_id,e1_id = e1_id,e2_id
+
             str_e1_id=str(e1_id)
             str_e2_id=str(e2_id)
             
@@ -182,6 +199,13 @@ class RBERT(BertPreTrainedModel):
 
         return outputs  # (loss), logits, (hidden_states), (attentions)
 def attention(query, key, value):
+    '''
+    an attention mechanism to get weigth between vertexs in SRG
+    :param query:
+    :param key:
+    :param value:
+    :return:
+    '''
     d_k = query.size(-1)
     scores = torch.matmul(query, key.transpose(-2, -1)) / math.sqrt(d_k)
     p_attn = F.softmax(scores, dim=-1)

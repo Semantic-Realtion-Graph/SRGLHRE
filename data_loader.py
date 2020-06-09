@@ -236,19 +236,30 @@ def convert_examples_to_features(examples, args, tokenizer,
                                  sequence_a_segment_id=0,
                                  add_sep_token=False,
                                  mask_padding_with_zero=True):
+    '''
+    :param examples: the examples of dataset
+    :param args: parameters
+    :param tokenizer:tokenizer
+    :param cls_token: '[CLS]' marker
+    :param cls_token_segment_id: The default is 0 if there is a sentence only
+    :param sep_token:'[SEP]' marker
+    :param pad_token: padding token,default is 0
+    :return: features(InputFeatures)
+    '''
     features = []
     max_seq_len = args.max_seq_len
     entity2id = load_entity2id(args.entity2id_file)
     for (ex_index, example) in enumerate(examples):
         if ex_index % 5000 == 0:
             logger.info("Writing example %d of %d" % (ex_index, len(examples)))
-        #tokens_a = tokenizer.tokenize(example)
+
         e11_p_ = example.text_a.index("<e1>")+5  # the start position of entity1
         e12_p_ = example.text_a.index("</e1>")  # the end position of entity1
         e21_p_ = example.text_a.index("<e2>")+5 # the start position of entity2
         e22_p_ = example.text_a.index("</e2>")  # the end position of entity2
         e1 = example.text_a[e11_p_:e12_p_].strip()
         e2 = example.text_a[e21_p_:e22_p_].strip()
+
         #print(e1)
         if not entity2id.__contains__(e1):
             e1_id = len(entity2id)
@@ -356,6 +367,15 @@ def convert_examples_to_features(examples, args, tokenizer,
 
 
 def load_and_cache_examples(args, tokenizer, mode):
+    '''
+        load examples from cache file
+        :param args:  args
+        :param test_list: test_list used to store seen examples
+        :param task_index: task index of lifelong
+        :param tokenizer:
+        :param mode: Option is "train","test","dev","eval"
+        :return: dataset
+        '''
     processor = processors[args.task](args)
 
     # Load data features from cache or dataset file
