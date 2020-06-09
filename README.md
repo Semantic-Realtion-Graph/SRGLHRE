@@ -35,3 +35,8 @@ python -u main.py \
 |--entity_start           |use the hidden state of start markers <e1s> and <e2s> as the representation|
 |--few_shot               |if few shot, select some examples form dataset for limited supervision learning|
 |--num_examples_per_task  |the number of examples selected in each task for limited supervision learning experiment|
+    
+    
+## Data
+We provide the lifelong FewRel benchamark which has been split into ten tasks at ./data/fewrel
+
